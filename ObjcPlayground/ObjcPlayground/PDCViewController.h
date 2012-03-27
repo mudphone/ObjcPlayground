@@ -11,7 +11,12 @@
 @interface PDCViewController : UIViewController
 
 - (void)playInUhPlayground;
+
 - (NSString *)nameOfClass:(Class)class;
 - (void)printMethodsOfClass:(Class)class;
+
+static const void *sendMessage(id receiver, const char *name);
+- (void)printMessageSend;
+- (void)printMethodForSelector;
 
 @end

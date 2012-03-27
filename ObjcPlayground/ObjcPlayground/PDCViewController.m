@@ -40,10 +40,17 @@
     Class theClass = [NSObject class];
     
     // Print name of class:
-    if (YES) NSLog(@"Name of class is: %@", [self nameOfClass:theClass]);
+//    NSLog(@"Name of class is: %@", [self nameOfClass:theClass]);
     
     // Print methods of class:
-    if (YES) [self printMethodsOfClass:theClass];
+//    [self printMethodsOfClass:theClass];
+    
+    // Use home-made message passing:
+//    [self printMessageSend];
+    
+    // Use Cocoa helper to pass message:
+    [self printMethodForSelector];
+    
 }
 
 - (NSString *)nameOfClass:(Class)class
@@ -62,6 +69,41 @@
         NSLog(@"%@ method: %@", [self nameOfClass:class], [NSString stringWithUTF8String:name]);
     }
     free(methods);
+}
+
+#pragma mark - Message Sending
+
+static const void *sendMessage(id receiver, const char *name)
+{
+    SEL selector = sel_registerName(name);
+    IMP methodIMP = class_getMethodImplementation(object_getClass(receiver), selector);
+    return (__bridge void *)methodIMP(receiver, selector);
+}
+
+- (void)printMessageSend
+{
+    id object = [NSObject alloc];
+    sendMessage(object, "init");
+    
+    NSString *message = @"description";
+    id description = (__bridge id)sendMessage(object, [message UTF8String]);
+    NSLog(@"Message: %@ on NSObject results in: %@", message, description);
+    
+    object = @"/tmp/filename.txt";
+    message = @"lastPathComponent";
+    id filename = (__bridge id)sendMessage(object, [message UTF8String]);
+    NSLog(@"Message: %@ on NSObject results in: %@", message, filename);
+}
+
+- (void)printMethodForSelector
+{
+    NSArray *theArray = [NSArray arrayWithObjects:@"zero", @"one", @"two", nil];
+    SEL selector = @selector(objectAtIndex:);
+    IMP objectAtIndexMethod = [theArray methodForSelector:selector];
+    
+    int chosenIndex = 1;
+    id result = objectAtIndexMethod(theArray, selector, chosenIndex);
+    NSLog(@"The Array is: %@ \nObject at index %i is: %@", theArray, chosenIndex, result);
 }
 
 @end
