@@ -7,6 +7,7 @@
 //
 
 #import "PDCViewController.h"
+#import <objc/objc-runtime.h>
 
 @interface PDCViewController ()
 
@@ -18,6 +19,7 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    [self playInUhPlayground];
 }
 
 - (void)viewDidUnload
@@ -29,6 +31,32 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+}
+
+#pragma mark - Playground (a bit hokey)
+
+- (void)playInUhPlayground
+{
+    if (YES) NSLog(@"Name of class is: %@", [self nameOfClass:[NSObject class]]);
+    if (YES) [self printMethodsOfClass:[NSString class]];
+}
+
+- (NSString *)nameOfClass:(Class)class
+{
+    return [NSString stringWithUTF8String:class_getName(class)];
+
+}
+
+- (void)printMethodsOfClass:(Class)class
+{
+    unsigned int count = 0;
+    Method *methods = class_copyMethodList(class, &count);
+    for (unsigned int i = 0; i < count; i++) {
+        SEL sel = method_getName(methods[i]);
+        const char *name = sel_getName(sel);
+        NSLog(@"%@ method: %@", [self nameOfClass:class], [NSString stringWithUTF8String:name]);
+    }
+    free(methods);
 }
 
 @end
