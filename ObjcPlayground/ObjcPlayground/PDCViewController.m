@@ -37,8 +37,13 @@
 
 - (void)playInUhPlayground
 {
-    if (YES) NSLog(@"Name of class is: %@", [self nameOfClass:[NSObject class]]);
-    if (YES) [self printMethodsOfClass:[NSString class]];
+    Class theClass = [NSObject class];
+    
+    // Print name of class:
+    if (YES) NSLog(@"Name of class is: %@", [self nameOfClass:theClass]);
+    
+    // Print methods of class:
+    if (YES) [self printMethodsOfClass:theClass];
 }
 
 - (NSString *)nameOfClass:(Class)class
