@@ -1,0 +1,70 @@
+Dynamic Languages - They're not just for Rubyists (and Pythonistas)
+
+All credit to:
+- iOS 5 Programming Pushing the Limits, by Rob Napier, Mugunth Kumar
+
+Assumptions: 
+- Not covering Core Foundation
+- 
+
+What should we cover?
+- Creating new methods and classes at runtime
+- introspection
+- message passing
+- KVO
+- at runtime
+  - inspect and modify class hierarchy
+  - create new classes and methods
+  - change class and superclass (ISA Swizzling)
+
+
+Basics / Intro:
+- Like C++, no multiple inheritance, no operator overloading
+- It all comes from libobjc, a collection of C functions
+  objc_msgSend --> [object message]
+  
+- Objective-C runtime is open source (opensource.apple.com)
+  - got objc4-493.11 here: http://opensource.apple.com/release/mac-os-x-1073/
+  
+The Objective-C Object:
+- All Objective-C objects are C structs
+  typedef struct objc_object {
+    Class isa;
+  } *id;
+  
+    - ISA pointer
+    - Root class' ivars
+    - penultimate superclass' ivars
+    - ...
+    - superclass' ivars
+    - Class' ivars
+
+- Class structure contains a metaclass pointer(?), superclass pointer, data about the class
+  - data: name, ivars, methods, properties, protocols
+
+- Superclass pointer createes the hierarchy of classes
+( Categories )
+- Methods, properties, and protocols define what the class can do
+  - stored in writable section of class definition, which can be changed at runtime
+  - this is how categories work (Ruby: Monkey-Patching)
+  - Ivars are stored in the read-only section, unmodifiable as this would impact existing instances
+    - thus, categories cannot change add ivars
+- objc_object isa pointer is not const --> change class at runtime
+- Class superclass pointer also not const --> change class hierarcy at runtime
+
+
+A Quick Intro to C Structs
+- http://heather.cs.ucdavis.edu/~matloff/UnixAndC/CLanguage/PointersI.html
+
+
+Classes and Metaclasses
+- A class is like an object, you can pass it messages
+  - [MyClass alloc] 
+  - Class methods are stored in the metaclass, which is where the Class isa pointer goes
+  
+
+
+
+
+WHAT ABOUT...?
+- Class structure metaclass pointer
