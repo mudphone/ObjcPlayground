@@ -170,7 +170,30 @@ The Objective-C Runtime Programming Guide
       - self = receiver
       - _cmd = selector
     - You can use methodForSelector: to bypass dynamic binding... but, it's kind of cheating since this method is provided by Cocoa.
+    
+- Dynamic Method Resolution
+  - @dynamic propertyName;
+    - Core Data NSManagedObject does this.
+  - You can implement resolvedInstanceMethod: and resolveClassMethod:
 
+- Dynamic Loading
+  - System Preferences modules
+  - NSBundle
+  
+- Message Forwarding
+  - forwardInvocation: (it's kind of like Ruby's method_missing)
+    - (void)forwardInvocation:(NSInvocation *)anInvocation
+    {
+        if ([someOtherObject respondsToSelector:
+                [anInvocation selector]])
+            [anInvocation invokeWithTarget:someOtherObject];
+        else
+    [super forwardInvocation:anInvocation];
+    }
+  - Forwarding mimics multiple inheritance
+    - provides features of multiple inheritance
+    - but, multiple inheritance combines capabilities in single object
+    - forwarding provides abilities in smaller objects, associated in transparent way to the message sender
 
 Method Swizzling
 - Swizzling: transparently replacing one thing with another at runtime
@@ -185,6 +208,31 @@ Method Swizzling
   - Use funtion pointer approach in RNSwizzle instead
   - If still interested, read this:
     http://robnapier.net/blog/hijacking-methodexchangeimplementations-502
+      - NSNotificationCenter Category Example:
+        @interface NSNotificationCenter (RNHijack)
+        + (void)hijack;
+        @end
+
+        @implementation NSNotificationCenter (RNHijack)
+        + (void)hijackSelector:(SEL)originalSelector withSelector:(SEL)newSelector
+        {
+            Class class = [NSNotificationCenter class];
+            Method originalMethod = class_getInstanceMethod(class, originalSelector);
+            Method categoryMethod = class_getInstanceMethod(class, newSelector);
+            method_exchangeImplementations(originalMethod, categoryMethod);
+        }
+
+        + (void)hijack
+        {
+            [self hijackSelector:@selector(removeObserver:)
+                withSelector:@selector(RNHijack_removeObserver:)];
+        }
+
+        - (void)RNHijack_removeObserver:(id)notificationObserver
+        {
+            NSLog(@"Removing observer: %@", notificationObserver);
+            [self RNHijack_removeObserver:notificationObserver];
+        }
   
 ISA Swizzling
 - ISA pointer defines the object's class
