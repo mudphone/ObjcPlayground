@@ -2,6 +2,7 @@ Dynamic Languages - They're not just for Rubyists (and Pythonistas)
 
 All credit to:
 - iOS 5 Programming Pushing the Limits, by Rob Napier, Mugunth Kumar
+  - Show a picture and link to book: http://iosptl.com/
 
 Assumptions: 
 - Not covering Core Foundation
@@ -32,13 +33,13 @@ The Objective-C Object:
     Class isa;
   } *id;
   
-    - ISA pointer
+    - ISA pointer (defines the object's class)
     - Root class' ivars
     - penultimate superclass' ivars
     - ...
     - superclass' ivars
     - Class' ivars
-
+    
 - Class structure contains a metaclass pointer(?), superclass pointer, data about the class
   - data: name, ivars, methods, properties, protocols
 
@@ -53,8 +54,15 @@ The Objective-C Object:
 - Class superclass pointer also not const --> change class hierarcy at runtime
 
 
-A Quick Intro to C Structs
-- http://heather.cs.ucdavis.edu/~matloff/UnixAndC/CLanguage/PointersI.html
+Review
+- A Quick Intro to C Structs
+  - http://heather.cs.ucdavis.edu/~matloff/UnixAndC/CLanguage/PointersI.html
+- SEL, IMP, method
+  SEL - Selector, or name of method
+  Method - A selector on a class
+  IMP - The function itself
+      - just a function that accepts an object pointer and selector
+  
 
 
 Classes and Metaclasses
@@ -62,9 +70,126 @@ Classes and Metaclasses
   - [MyClass alloc] 
   - Class methods are stored in the metaclass, which is where the Class isa pointer goes
   
+Sending Messages
+- See Xcode project examples
+- What happens in objc_msgSend?
+  - It's written in opcode in objc-msg-arm.s (and -i386.s, -simulator-i386.s, x86_64.s)
+    /********************************************************************
+     * id		objc_msgSend(id	self,
+     *			SEL	op,
+     *			...)
+     *
+     * On entry: a1 is the message receiver,
+     *           a2 is the selector
+     ********************************************************************/
+
+    	ENTRY objc_msgSend
+    # check whether receiver is nil
+    	teq     a1, #0
+    	itt	eq
+    	moveq   a2, #0
+    	bxeq    lr
+    	...
+    	
+  - Order of operations:
+    - Check if the receiver is nil --> nil-handler
+    - If garbage collection available, short-circuit on certain selectors (retain, release, autorelease, retainCount) --> return self
+    - Check class' cache for implementation, call it
+    - Compare requested selector to selectors defined in class, call it
+    - Compare to superclass, and up the chain
+    - Call resolveInstanceMethod: (or resolveClassMethod:), if returns YES, start over
+    - Call forwardingTargetForSelector:, if returns non-nil, send message to object (other than self)
+    - Call methodSignatureForSelector:, if returns non-nil, create an NSInvocation and pass to forwardInvocation:
+    - Call doesNotRecognizeSelector: --> throws exception by default
+    
+  - How to use this in a dynamic way?
+    - Dynamic implementation: @dynamic synthesis of properites
+      - uses resolveInstanceMethod: and resolveClassMethod:
+      - See ch-20 Person.m/h
+    - Dynamic loading (not allowed in iOS)
+    - Fast Forwarding
+      - forwardingTargetForSelector: useful for proxy objects, such as CacheProxy.h/m
+      - See ch-20 CacheProxy.m/h
+    - Normal Forwarding
+      - Slower, but more flexible
+    - Forwarding Failure w/ doesNotRecognizeSelector:
+
+A (Slightly) Deep(er) Dive into objc_msgSend()
+- README: http://www.friday.com/bbum/2009/12/18/objc_msgsend-part-1-the-road-map/ (all 4 parts!)
+  - Now we're getting crazy.
+- objc_msgSend() is really a family of functions
+  "each written to handle the calling conventions required to deal with various return types under the x86_64 ABI (Application Binary Interface). Oh, and the vtable dispatch stuff (different post)."
+  - called 10s of millions of times just launching your app
+    - That's why it's carefully crafted in assembly.
+  - Three notable optimizations:
+      Don’t Mess With Registers (unless absolutely necessary)
+      Tail Call Optimized
+      Don’t Mess with the Argument List
+- Show objc_msgSend() assemby just to make the point that it's written in assembly?
+- Method calls in ObjC are really just C function calls to objc_msgSend(), in which it figures out C function to call
+    These are equivalent, generating the functionaly equivalent assembly: 
+      - (id) doSomething: (NSUInteger) index;
+      id doSomething(id self, SEL _cmd, NSUInteger index) { ... }
+    
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+Method Swizzling
+- Swizzling: transparently replacing one thing with another at runtime
+    in IOS, usually this is methods
+- Warning: May cause App Rejection.
+- Allow you to change the behaviors of Apple frameworks
+- NSObject Category RNSwizzle.m/h example (ch-20)
+
+- method_exhangeImplementations
+  - modifies selector, can break things
+  - pseudo-recursive call can be misleading
+  - Use funtion pointer approach in RNSwizzle instead
+  - If still interested, read this:
+    http://robnapier.net/blog/hijacking-methodexchangeimplementations-502
+  
+ISA Swizzling
+- ISA pointer defines the object's class
+- Modifying an object's class at runtime
+- NSObject Category SetClass (ISASwizzle) 
+  - accomplishes same goal as RNSwizzle, but uses ISA swizzling, instead of method swizzling
+- Makes sure to check instance size before replacing
+  - clobbering ISA pointer of object after this object is difficult to debug
+  - hence the NSAssert ensuring both Class' instances are the same size
+- This is a good solution for classes that are meant to be subclassed
+- KVO is implemented with ISA swizzling
+  - Allows frameworks to inject code into your classes
+    - Now you can do the reverse
+
+Downsides to Swizzling
+- why might this be bad?  
+  - tight coupling with implementation details
+  - difficult to debug
+  - unfamiliar to others
+- we're going to talk about it because it reveals the dynamic nature of Objective-C
+- Rob Napier suggests using ISA over method swizzling
+  - only impacts specific objects, rather than all instances of a class
+  - use method swizzling if you actually want to affect every instance of a class
+  
+  Rob Napier's talbe of Swizzling differences - P387 iOS-PTL
+  
 
 
 
 
 WHAT ABOUT...?
 - Class structure metaclass pointer
+- KVO refresher
+
+READ:
+Apple: Objective-C Runtime Programming Guide
+http://www.friday.com/bbum/2009/12/18/objc_msgsend-part-1-the-road-map/ (all 4 parts!)
