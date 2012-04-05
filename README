@@ -13,10 +13,17 @@ What should we cover?
 - introspection
 - message passing
 - KVO
+- blocks
 - at runtime
   - inspect and modify class hierarchy
   - create new classes and methods
   - change class and superclass (ISA Swizzling)
+
+Tools:
+- F-Script: sort of an Objective-C REPL
+  - Smalltalk dialect
+  - http://www.fscript.org/
+    - syntax tutorial: http://www.fscript.org/documentation/ExploringCocoaWithFScript/index.htm
 
 
 Basics / Intro:
@@ -131,18 +138,40 @@ A (Slightly) Deep(er) Dive into objc_msgSend()
       - (id) doSomething: (NSUInteger) index;
       id doSomething(id self, SEL _cmd, NSUInteger index) { ... }
     
+The Objective-C Runtime Programming Guide
+- From the introduction:
+  "The Objective-C language defers as many decisions as it can from compile time and link time to runtime. Whenever possible, it does things dynamically. This means that the language requires not just a compiler, but also a runtime system to execute the compiled code. The runtime system acts as a kind of operating system for the Objective-C language; it’s what makes the language work."
+
+  "You should read this document to gain an understanding of how the Objective-C runtime system works and how you can take advantage of it. Typically, though, there should be little reason for you to need to know and understand this material to write a Cocoa application."
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+- Runtime interaction:
+  - Through ObjC source
+    - write and complile ObjC source
+  - NSObject methods
+    - allow introspection: 
+      class, isMemberOfClass:, isKindOfClass:, respondsToSelector:, conformsToProtocol:, methodForSelector:
+  - direct calls to runtime functions
+    - Most ObjC boil down to these functions, allowing writing C code to replicate what ObjC compiles down to
+    - dynamic shared library with a public interface consisting of a set of functions and data structures
+      - Header files located in /usr/include/objc
+
+- Messaging
+  - [receiver message]
+    objc_msgSend(receiver, selector, arg1, arg2, ...)
+  - dynamic binding:
+    - find procedure (method implementation) for selector
+    - call procedure, passing receiver and args
+    - return the procedure's return value
+  - isa / messaging framwork diagram p12 (Figure 3-1)
+  - method implementations chosen at runtime == methods dynamically bound to messages
+  - Hidden Arguments
+    - receiver and selector are called "hidden" because aren't delared in the source code
+    - source code can still refer to them:
+      - self = receiver
+      - _cmd = selector
+    - You can use methodForSelector: to bypass dynamic binding... but, it's kind of cheating since this method is provided by Cocoa.
+
+
 Method Swizzling
 - Swizzling: transparently replacing one thing with another at runtime
     in IOS, usually this is methods
