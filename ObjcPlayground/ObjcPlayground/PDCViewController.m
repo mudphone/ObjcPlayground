@@ -39,25 +39,31 @@
 {
     Class theClass = [NSObject class];
     
-    // Print name of class:
+    // 1) Print name of class:
 //    NSLog(@"Name of class is: %@", [self nameOfClass:theClass]);
     
-    // Print methods of class:
+    // 2) Print methods of class:
 //    [self printMethodsOfClass:theClass];
     
-    // Use home-made message passing:
+    // 3) Use home-made message passing:
 //    [self printMessageSend];
     
-    // Use Cocoa helper to pass message:
+    // 4) Use Cocoa helper to pass message:
     [self printMethodForSelector];
     
 }
+
+
+#pragma mark - 1) Print name of class:
 
 - (NSString *)nameOfClass:(Class)class
 {
     return [NSString stringWithUTF8String:class_getName(class)];
 
 }
+
+
+#pragma mark - 2) Print methods of class:
 
 - (void)printMethodsOfClass:(Class)class
 {
@@ -71,7 +77,8 @@
     free(methods);
 }
 
-#pragma mark - Message Sending
+
+#pragma mark - 3) Use home-made message passing:
 
 static const void *sendMessage(id receiver, const char *name)
 {
@@ -94,6 +101,9 @@ static const void *sendMessage(id receiver, const char *name)
     id filename = (__bridge id)sendMessage(object, [message UTF8String]);
     NSLog(@"Message: %@ on NSObject results in: %@", message, filename);
 }
+
+
+#pragma mark - 4) Use Cocoa helper to pass message:
 
 - (void)printMethodForSelector
 {

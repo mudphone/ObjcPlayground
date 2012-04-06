@@ -33,7 +33,7 @@ Basics / Intro:
   
 - Objective-C runtime is open source (opensource.apple.com)
   - got objc4-493.11 here: http://opensource.apple.com/release/mac-os-x-1073/
-  
+
 The Objective-C Object:
 - All Objective-C objects are C structs
   typedef struct objc_object {
@@ -47,6 +47,15 @@ The Objective-C Object:
     - superclass' ivars
     - Class' ivars
     
+- And the Class:    
+  typedef struct objc_class *Class;
+  struct objc_class {
+      Class isa;
+      ...
+    
+- A Quick Intro to C Structs
+  - http://heather.cs.ucdavis.edu/~matloff/UnixAndC/CLanguage/PointersI.html
+
 - Class structure contains a metaclass pointer(?), superclass pointer, data about the class
   - data: name, ivars, methods, properties, protocols
 
@@ -62,22 +71,59 @@ The Objective-C Object:
 
 
 Review
-- A Quick Intro to C Structs
-  - http://heather.cs.ucdavis.edu/~matloff/UnixAndC/CLanguage/PointersI.html
+- In general: Messaging
+  - Method: An actual piece of code associated with a class, and given a particular name
+  - Message: A name and parameters sent to an object
+  - Selector: A particular way of representing the name of a message or method
+  - Message send: Taking a message and finding and executing the correct method
+
 - SEL, IMP, method
   SEL - Selector, or name of method
   Method - A selector on a class
   IMP - The function itself
       - just a function that accepts an object pointer and selector
-  
+
 
 
 Classes and Metaclasses
 - A class is like an object, you can pass it messages
   - [MyClass alloc] 
   - Class methods are stored in the metaclass, which is where the Class isa pointer goes
-  
+
+
+
 Sending Messages
+- What is a method?
+  Ex: - (int)foo:(NSString *)str { ...
+  Is really:
+    int SomeClass_method_foo_(SomeClass *self, SEL _cmd, NSString *str) { ...
+  
+  Ex: int result = [obj foo:@"hello"];
+  Is really: 
+    int result = ((int (*)(id, SEL, NSString *))objc_msgSend)(obj, @selector(foo:), @"hello");
+    
+  (Examples from: http://mikeash.com/pyblog/friday-qa-2009-03-20-objective-c-messaging.html)
+  
+    struct objc_method {
+      SEL method_name                                          OBJC2_UNAVAILABLE;
+      char *method_types                                       OBJC2_UNAVAILABLE;
+      IMP method_imp                                           OBJC2_UNAVAILABLE;
+    }                                                          OBJC2_UNAVAILABLE;
+  - So, a method is
+    - a name (selector, SEL)
+    - a string containing argument and return types (created by @encode)
+    - an IMP, or function pointer:
+      typedef id 			(*IMP)(id, SEL, ...);
+  
+- Messaging:
+  objc_msgSend does the following
+    - look up class of given object, be dereferencing itand grabbing ISA member
+    - look at method list of class, search for selector
+    - if not found, move to superclass and do the same
+    - when found, jump to IMP
+  - There is also a method cache, to speed up this lookup process for future messages
+  - What about when no method found for a selector?
+  
 - See Xcode project examples
 - What happens in objc_msgSend?
   - It's written in opcode in objc-msg-arm.s (and -i386.s, -simulator-i386.s, x86_64.s)
@@ -105,7 +151,9 @@ Sending Messages
     - Compare requested selector to selectors defined in class, call it
     - Compare to superclass, and up the chain
     - Call resolveInstanceMethod: (or resolveClassMethod:), if returns YES, start over
+      - starts over and assumes method has been added
     - Call forwardingTargetForSelector:, if returns non-nil, send message to object (other than self)
+      - starts over with new target
     - Call methodSignatureForSelector:, if returns non-nil, create an NSInvocation and pass to forwardInvocation:
     - Call doesNotRecognizeSelector: --> throws exception by default
     
@@ -262,11 +310,22 @@ Downsides to Swizzling
 
 
 
-
 WHAT ABOUT...?
 - Class structure metaclass pointer
 - KVO refresher
 
-READ:
-Apple: Objective-C Runtime Programming Guide
-http://www.friday.com/bbum/2009/12/18/objc_msgsend-part-1-the-road-map/ (all 4 parts!)
+
+
+
+CREDITS:
+- Everything:
+  http://iosptl.com/
+  The Objective-C Runtime Programming Guide
+    https://developer.apple.com/library/ios/#documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Introduction/Introduction.html
+- C Basics:
+  http://heather.cs.ucdavis.edu/~matloff/UnixAndC/CLanguage/PointersI.html
+- Messaging:
+  http://www.friday.com/bbum/2009/12/18/objc_msgsend-part-1-the-road-map/
+  http://mikeash.com/pyblog/friday-qa-2009-03-20-objective-c-messaging.html
+- Swizzling:
+  http://robnapier.net/blog/hijacking-methodexchangeimplementations-502
