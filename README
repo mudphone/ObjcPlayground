@@ -59,7 +59,7 @@ The Objective-C Object:
 - Class structure contains a metaclass pointer(?), superclass pointer, data about the class
   - data: name, ivars, methods, properties, protocols
 
-- Superclass pointer createes the hierarchy of classes
+- Superclass pointer creates the hierarchy of classes
 ( Categories )
 - Methods, properties, and protocols define what the class can do
   - stored in writable section of class definition, which can be changed at runtime
@@ -90,7 +90,16 @@ Classes and Metaclasses
   - [MyClass alloc] 
   - Class methods are stored in the metaclass, which is where the Class isa pointer goes
 
-
+  - diagram: http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html
+  - Class is instance of metaclass
+    - metaclass describes methods of class, just as class describes methods of instance
+  - Meta-classes are instances of the root class' metaclass
+    - which is also an instance of the root class' metaclass (ending in a cycle)
+  - Meta-classes superclasses are the meta-classes of their corresponding class' superclass
+    - but, the root meta-class' superclass is the root class
+      - so, class objects respond to the root class' instance methods
+  - Meta-classes are hidden from you ([NSObject class] #=> [NSObject self]), and are rarely accessed
+  
 
 Sending Messages
 - What is a method?
@@ -150,12 +159,15 @@ Sending Messages
     - Check class' cache for implementation, call it
     - Compare requested selector to selectors defined in class, call it
     - Compare to superclass, and up the chain
-    - Call resolveInstanceMethod: (or resolveClassMethod:), if returns YES, start over
-      - starts over and assumes method has been added
-    - Call forwardingTargetForSelector:, if returns non-nil, send message to object (other than self)
-      - starts over with new target
-    - Call methodSignatureForSelector:, if returns non-nil, create an NSInvocation and pass to forwardInvocation:
-    - Call doesNotRecognizeSelector: --> throws exception by default
+    - Lazy method resolution
+      - Call resolveInstanceMethod: (or resolveClassMethod:), if returns YES, start over
+        - starts over and assumes method has been added
+    - Fast forwarding path
+      - Call forwardingTargetForSelector:, if returns non-nil, send message to object (other than self)
+        - starts over with new target
+    - Normal forwarding path
+      - Call methodSignatureForSelector:, if returns non-nil, create an NSInvocation and pass to forwardInvocation:
+      - Call doesNotRecognizeSelector: --> throws exception by default
     
   - How to use this in a dynamic way?
     - Dynamic implementation: @dynamic synthesis of properites
@@ -248,15 +260,21 @@ Method Swizzling
     in IOS, usually this is methods
 - Warning: May cause App Rejection.
 - Allow you to change the behaviors of Apple frameworks
-- NSObject Category RNSwizzle.m/h example (ch-20)
 
-- method_exhangeImplementations
+- Why not use a category?
+  - Category meethod replaces original method, with no way to call original method
+  - Original method you wish to replace might have been implemented by category
+    - There is no way to determine which category method "wins"
+- Option 1 (more bad): method_exhangeImplementations
   - modifies selector, can break things
   - pseudo-recursive call can be misleading
   - Use funtion pointer approach in RNSwizzle instead
   - If still interested, read this:
-    http://robnapier.net/blog/hijacking-methodexchangeimplementations-502
+    http://mikeash.com/pyblog/friday-qa-2010-01-29-method-replacement-for-fun-and-profit.html
       - NSNotificationCenter Category Example:
+        #import <objc/runtime.h> 
+        #import <objc/message.h>
+      
         @interface NSNotificationCenter (RNHijack)
         + (void)hijack;
         @end
@@ -266,8 +284,16 @@ Method Swizzling
         {
             Class class = [NSNotificationCenter class];
             Method originalMethod = class_getInstanceMethod(class, originalSelector);
-            Method categoryMethod = class_getInstanceMethod(class, newSelector);
-            method_exchangeImplementations(originalMethod, categoryMethod);
+            Method overrideMethod = class_getInstanceMethod(class, newSelector);
+            // method_exchangeImplementations(originalMethod, overrideMethod); // Can't do this!
+            if (class_addMethod(c, origSEL, method_getImplementation(overrideMethod), method_getTypeEncoding(overrideMethod)))
+            {
+                class_replaceMethod(c, overrideSEL, method_getImplementation(origMethod), method_getTypeEncoding(origMethod));
+            }     
+            else
+            {
+                method_exchangeImplementations(origMethod, overrideMethod);
+            }
         }
 
         + (void)hijack
@@ -281,6 +307,8 @@ Method Swizzling
             NSLog(@"Removing observer: %@", notificationObserver);
             [self RNHijack_removeObserver:notificationObserver];
         }
+        
+- Option 2 (less bad): NSObject Category RNSwizzle.m/h example (ch-20)
   
 ISA Swizzling
 - ISA pointer defines the object's class
@@ -313,8 +341,12 @@ Downsides to Swizzling
 WHAT ABOUT...?
 - Class structure metaclass pointer
 - KVO refresher
+- HOM Higher Order Messaging
+  http://cocoadev.com/index.pl?HigherOrderMessaging
 
 
+- Implement Clojure/Ruby collection methods with trampolining or blocks?
+  - http://cocoadev.com/index.pl?HigherOrderMessaging
 
 
 CREDITS:
