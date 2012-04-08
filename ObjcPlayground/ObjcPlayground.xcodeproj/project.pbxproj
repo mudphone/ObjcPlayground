@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CF248ACE15313261006D0732 /* NSNotificationCenter+RNSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = CF248ACB15313261006D0732 /* NSNotificationCenter+RNSwizzle.m */; };
+		CF248ACF15313261006D0732 /* RNSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = CF248ACD15313261006D0732 /* RNSwizzle.m */; };
 		CFA73E631522385300625A31 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA73E621522385300625A31 /* UIKit.framework */; };
 		CFA73E651522385300625A31 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA73E641522385300625A31 /* Foundation.framework */; };
 		CFA73E671522385300625A31 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA73E661522385300625A31 /* CoreGraphics.framework */; };
@@ -18,6 +20,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CF248ACA15313261006D0732 /* NSNotificationCenter+RNSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+RNSwizzle.h"; sourceTree = "<group>"; };
+		CF248ACB15313261006D0732 /* NSNotificationCenter+RNSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNotificationCenter+RNSwizzle.m"; sourceTree = "<group>"; };
+		CF248ACC15313261006D0732 /* RNSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSwizzle.h; sourceTree = "<group>"; };
+		CF248ACD15313261006D0732 /* RNSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSwizzle.m; sourceTree = "<group>"; };
 		CFA73E5E1522385300625A31 /* ObjcPlayground.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ObjcPlayground.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFA73E621522385300625A31 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		CFA73E641522385300625A31 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -47,6 +53,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CF248AC815313242006D0732 /* Collection Enhancements */ = {
+			isa = PBXGroup;
+			children = (
+				CF248ACA15313261006D0732 /* NSNotificationCenter+RNSwizzle.h */,
+				CF248ACB15313261006D0732 /* NSNotificationCenter+RNSwizzle.m */,
+				CF248ACC15313261006D0732 /* RNSwizzle.h */,
+				CF248ACD15313261006D0732 /* RNSwizzle.m */,
+			);
+			name = "Collection Enhancements";
+			sourceTree = "<group>";
+		};
 		CFA73E531522385300625A31 = {
 			isa = PBXGroup;
 			children = (
@@ -77,6 +94,7 @@
 		CFA73E681522385300625A31 /* ObjcPlayground */ = {
 			isa = PBXGroup;
 			children = (
+				CF248AC815313242006D0732 /* Collection Enhancements */,
 				CFA73E711522385300625A31 /* PDCAppDelegate.h */,
 				CFA73E721522385300625A31 /* PDCAppDelegate.m */,
 				CFA73E741522385300625A31 /* MainStoryboard.storyboard */,
@@ -165,6 +183,8 @@
 				CFA73E6F1522385300625A31 /* main.m in Sources */,
 				CFA73E731522385300625A31 /* PDCAppDelegate.m in Sources */,
 				CFA73E791522385300625A31 /* PDCViewController.m in Sources */,
+				CF248ACE15313261006D0732 /* NSNotificationCenter+RNSwizzle.m in Sources */,
+				CF248ACF15313261006D0732 /* RNSwizzle.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,6 +296,7 @@
 				CFA73E7E1522385300625A31 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
