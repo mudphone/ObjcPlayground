@@ -10,13 +10,32 @@
 
 @implementation NSArray (Clojureizer)
 
-- (NSArray *)map:(id (^)(id first))doBlock
+- (NSArray *)filter:(BOOL (^)(id obj))pred
 {
-    NSMutableArray *array = [NSMutableArray arrayWithCapacity:[self count]];
+    NSMutableArray *array = [NSMutableArray array];
     for (id item in self) {
-        [array addObject:doBlock(item)];
+        if (pred(item)) [array addObject:item];
     }
     return [NSArray arrayWithArray:array];
 }
+
+- (NSArray *)map:(id (^)(id obj))f
+{
+    NSMutableArray *array = [NSMutableArray arrayWithCapacity:[self count]];
+    for (id item in self) {
+        [array addObject:f(item)];
+    }
+    return [NSArray arrayWithArray:array];
+}
+
+- (NSArray *)remove:(BOOL (^)(id obj))pred
+{
+    NSMutableArray *array = [NSMutableArray array];
+    for (id item in self) {
+        if (!pred(item)) [array addObject:item];
+    }
+    return [NSArray arrayWithArray:array];
+}
+
 
 @end

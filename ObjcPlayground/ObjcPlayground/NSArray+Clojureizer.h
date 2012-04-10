@@ -10,6 +10,8 @@
 
 @interface NSArray (Clojureizer)
 
-- (NSArray *)map:(id (^)(id first))doBlock;
+- (NSArray *)filter:(BOOL (^)(id obj))pred;
+- (NSArray *)map:(id (^)(id obj))f;
+- (NSArray *)remove:(BOOL (^)(id obj))pred;
 
 @end

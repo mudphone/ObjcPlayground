@@ -17,6 +17,7 @@
 
 @implementation PDCViewController
 
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -121,18 +122,43 @@ static const void *sendMessage(id receiver, const char *name)
 
 
 #pragma mark - Clojureizer
+
+#define ExampleLog(exampleName, fmt, ...) do { \
+NSLog((@"%s [line %d]\n%@ //=>\n" fmt), __PRETTY_FUNCTION__, __LINE__, exampleName, ##__VA_ARGS__); \
+    } while(0)
+
 - (void)doClojureizer
 {
-    NSArray *start = [NSArray arrayWithObjects:
-                      [NSNumber numberWithInt:0],
-                      [NSNumber numberWithInt:1],
-                      [NSNumber numberWithInt:2],
-                      [NSNumber numberWithInt:3], nil];
-    NSLog(@"start: %@", start);
-    NSArray *results = [start map:^id(id first) {
-        return [NSNumber numberWithInt:([first intValue] * 2)];
+    NSArray *simpleArray = [NSArray arrayWithObjects:
+                            [NSNumber numberWithInt:0],
+                            [NSNumber numberWithInt:2],
+                            [NSNumber numberWithInt:4],
+                            [NSNumber numberWithInt:5],
+                            [NSNumber numberWithInt:7],
+                            [NSNumber numberWithInt:9], nil];
+    ExampleLog(@"simpleArray", @"%@", simpleArray);
+    NSArray *results = [simpleArray map:^id(id item) {
+        return [NSNumber numberWithInt:([item intValue] * 2)];
     }];
-    NSLog(@"results: %@", results);
+    ExampleLog(@"[simpleArray map:#(* 2 %)", @"%@", results);
+    
+//    NSArray *simpleArray2 = [NSArray arrayWithObjects:
+//                             [NSNumber numberWithInt:0],
+//                             [NSNumber numberWithInt:1],
+//                             [NSNumber numberWithInt:2],
+//                             [NSNumber numberWithInt:3], nil];
+//    NSArray *doubleArray = [NSArray arrayWithObjects:simpleArray, simpleArray2, nil];
+//    NSLog(@"2) doubleArray: %@", doubleArray);
+
+    results = [simpleArray filter:^BOOL(id obj) {
+        return [obj intValue] >= 5;
+    }];
+    ExampleLog(@"[simpleArray filter:#(>= % 5)", @"%@", results);
+    
+    results = [simpleArray remove:^BOOL(id obj) {
+        return [obj intValue] >= 5;
+    }];
+    ExampleLog(@"[simpleArray remove:#(>= % 5)", @"%@", results);
 }
 
 
