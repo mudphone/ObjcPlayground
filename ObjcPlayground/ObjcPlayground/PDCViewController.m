@@ -9,6 +9,8 @@
 #import "PDCViewController.h"
 #import <objc/objc-runtime.h>
 
+#import "NSArray+Clojureizer.h"
+
 @interface PDCViewController ()
 
 @end
@@ -49,8 +51,9 @@
 //    [self printMessageSend];
     
     // 4) Use Cocoa helper to pass message:
-    [self printMethodForSelector];
-    
+//    [self printMethodForSelector];
+ 
+    [self doClojureizer];
 }
 
 
@@ -115,5 +118,22 @@ static const void *sendMessage(id receiver, const char *name)
     id result = objectAtIndexMethod(theArray, selector, chosenIndex);
     NSLog(@"The Array is: %@ \nObject at index %i is: %@", theArray, chosenIndex, result);
 }
+
+
+#pragma mark - Clojureizer
+- (void)doClojureizer
+{
+    NSArray *start = [NSArray arrayWithObjects:
+                      [NSNumber numberWithInt:0],
+                      [NSNumber numberWithInt:1],
+                      [NSNumber numberWithInt:2],
+                      [NSNumber numberWithInt:3], nil];
+    NSLog(@"start: %@", start);
+    NSArray *results = [start map:^id(id first) {
+        return [NSNumber numberWithInt:([first intValue] * 2)];
+    }];
+    NSLog(@"results: %@", results);
+}
+
 
 @end

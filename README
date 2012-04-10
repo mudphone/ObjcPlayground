@@ -3,6 +3,10 @@ Dynamic Languages - They're not just for Rubyists (and Pythonistas)
 ABSTRACT
 Objective-C is a popular language as it is a building block of all iOS applications.  It also has powerful dynamic features, while running on C.  This talk will introduce you to the basics of Objective-C, with an eye on how it is similar to other dynamic languages, such as Ruby.
 
+WHY?
+http://www.tiobe.com/index.php/paperinfo/tpci/Objective-C.html
+
+
 
 Credit for the outline of this talk goes to:
 - iOS 5 Programming Pushing the Limits, by Rob Napier, Mugunth Kumar
@@ -379,7 +383,7 @@ Downsides to Swizzling
 
 WHAT ABOUT...?
 - KVO refresher
-  - - Complete Friday Q&A V1: How Key-Value Observing Works
+  - Complete Friday Q&A V1: How Key-Value Observing Works
 - Blocks
   - Complete Friday Q&A V1: 
     - Practical Blocks

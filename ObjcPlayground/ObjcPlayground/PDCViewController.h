@@ -19,4 +19,7 @@ static const void *sendMessage(id receiver, const char *name);
 - (void)printMessageSend;
 - (void)printMethodForSelector;
 
+- (void)doClojureizer;
+
+
 @end
