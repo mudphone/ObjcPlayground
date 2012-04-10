@@ -141,14 +141,6 @@ NSLog((@"%s [line %d]\n%@ //=>\n" fmt), __PRETTY_FUNCTION__, __LINE__, exampleNa
         return [NSNumber numberWithInt:([item intValue] * 2)];
     }];
     ExampleLog(@"[simpleArray map:#(* 2 %)", @"%@", results);
-    
-//    NSArray *simpleArray2 = [NSArray arrayWithObjects:
-//                             [NSNumber numberWithInt:0],
-//                             [NSNumber numberWithInt:1],
-//                             [NSNumber numberWithInt:2],
-//                             [NSNumber numberWithInt:3], nil];
-//    NSArray *doubleArray = [NSArray arrayWithObjects:simpleArray, simpleArray2, nil];
-//    NSLog(@"2) doubleArray: %@", doubleArray);
 
     results = [simpleArray filter:^BOOL(id obj) {
         return [obj intValue] >= 5;
