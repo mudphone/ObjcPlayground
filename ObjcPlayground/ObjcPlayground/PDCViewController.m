@@ -7,6 +7,7 @@
 //
 
 #import "PDCViewController.h"
+#import "PDCArrayMapProxyNormal.h"
 #import <objc/objc-runtime.h>
 
 #import "NSArray+Clojureizer.h"
@@ -141,7 +142,7 @@ NSLog((@"%s [line %d]\n%@ //=>\n" fmt), __PRETTY_FUNCTION__, __LINE__, exampleNa
         return [NSNumber numberWithInt:([item intValue] * 2)];
     }];
     ExampleLog(@"[simpleArray map:#(* 2 %)", @"%@", results);
-
+    
     results = [simpleArray filter:^BOOL(id obj) {
         return [obj intValue] >= 5;
     }];
@@ -151,6 +152,13 @@ NSLog((@"%s [line %d]\n%@ //=>\n" fmt), __PRETTY_FUNCTION__, __LINE__, exampleNa
         return [obj intValue] >= 5;
     }];
     ExampleLog(@"[simpleArray remove:#(>= % 5)", @"%@", results);
+    
+//    NSArray *stringArray = [NSArray arrayWithObjects:
+//                            @"one",
+//                            @"two",
+//                            @"three", nil];
+//    results = [[stringArray collect] stringByAppendingString:@"suffix"];
+//    ExampleLog(@"(map %(stringByAppendingString % 'suffix') stringArray)", @"%@", results);    
 }
 
 

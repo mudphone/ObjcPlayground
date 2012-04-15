@@ -10,6 +10,7 @@
 		CF248ACE15313261006D0732 /* NSNotificationCenter+RNSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = CF248ACB15313261006D0732 /* NSNotificationCenter+RNSwizzle.m */; };
 		CF248ACF15313261006D0732 /* RNSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = CF248ACD15313261006D0732 /* RNSwizzle.m */; };
 		CF248BF915345A87006D0732 /* NSArray+Clojureizer.m in Sources */ = {isa = PBXBuildFile; fileRef = CF248BF815345A87006D0732 /* NSArray+Clojureizer.m */; };
+		CF248C00153534CC006D0732 /* PDCArrayMapProxyNormal.m in Sources */ = {isa = PBXBuildFile; fileRef = CF248BFF153534CC006D0732 /* PDCArrayMapProxyNormal.m */; };
 		CFA73E631522385300625A31 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA73E621522385300625A31 /* UIKit.framework */; };
 		CFA73E651522385300625A31 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA73E641522385300625A31 /* Foundation.framework */; };
 		CFA73E671522385300625A31 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA73E661522385300625A31 /* CoreGraphics.framework */; };
@@ -27,6 +28,8 @@
 		CF248ACD15313261006D0732 /* RNSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSwizzle.m; sourceTree = "<group>"; };
 		CF248BF715345A87006D0732 /* NSArray+Clojureizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Clojureizer.h"; sourceTree = "<group>"; };
 		CF248BF815345A87006D0732 /* NSArray+Clojureizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Clojureizer.m"; sourceTree = "<group>"; };
+		CF248BFE153534CC006D0732 /* PDCArrayMapProxyNormal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDCArrayMapProxyNormal.h; sourceTree = "<group>"; };
+		CF248BFF153534CC006D0732 /* PDCArrayMapProxyNormal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDCArrayMapProxyNormal.m; sourceTree = "<group>"; };
 		CFA73E5E1522385300625A31 /* ObjcPlayground.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ObjcPlayground.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFA73E621522385300625A31 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		CFA73E641522385300625A31 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -65,6 +68,8 @@
 				CF248ACD15313261006D0732 /* RNSwizzle.m */,
 				CF248BF715345A87006D0732 /* NSArray+Clojureizer.h */,
 				CF248BF815345A87006D0732 /* NSArray+Clojureizer.m */,
+				CF248BFE153534CC006D0732 /* PDCArrayMapProxyNormal.h */,
+				CF248BFF153534CC006D0732 /* PDCArrayMapProxyNormal.m */,
 			);
 			name = "Collection Enhancements";
 			sourceTree = "<group>";
@@ -191,6 +196,7 @@
 				CF248ACE15313261006D0732 /* NSNotificationCenter+RNSwizzle.m in Sources */,
 				CF248ACF15313261006D0732 /* RNSwizzle.m in Sources */,
 				CF248BF915345A87006D0732 /* NSArray+Clojureizer.m in Sources */,
+				CF248C00153534CC006D0732 /* PDCArrayMapProxyNormal.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,4 +10,9 @@
 
 @interface PDCArrayMapProxyNormal : NSProxy
 
+@property (nonatomic, strong) NSArray *array;
+
+- (id)initWithArray:(NSArray *)array;
+
+
 @end

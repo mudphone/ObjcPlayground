@@ -19,9 +19,11 @@ Assumptions:
 What We'll Cover:
 - The Basics
   - Objective-C w/ source code
+    - Mention of ARC
   - objects and classes
   - An intro to C Structs, and how Objective-C uses them
   - instances, classes, superclasses, & meta-classes
+    - Categories, this is how they work.
 - Messaging
   - Basics: methods, messages, selectors, message sending
   - Sending Messages 
@@ -36,12 +38,14 @@ What We'll Cover:
   - Message forwarding examples
 - Swizzling
   - Method swizzling: swapping method implementations at runtime
-  - ISA swizzling : changing classes at runtime
+  - ISA swizzling : changing classes at runtime 
+    - This is how KVO works
 - That's cool, but what do I do now?
 
 
 Basics / Intro:
 - Like C++, no multiple inheritance, no operator overloading
+- Now with ARC
 - It all comes from libobjc, a collection of C functions
   objc_msgSend --> [object message]
   
@@ -211,7 +215,10 @@ Sending Messages
       - NSBundle
     - Fast Forwarding
       - forwardingTargetForSelector: useful for proxy objects, such as CacheProxy.h/m
-      - See ch-20 CacheProxy.m/h
+      - See ch-20 CacheProxy.m/h (not an awesome example)
+      - The Higher Order Messaging (HOM) example is much more interesting
+        (more on this below)
+        
     - Normal Forwarding
       - Slower, but more flexible
     - Forwarding Failure w/ doesNotRecognizeSelector:
@@ -263,38 +270,48 @@ The Objective-C Runtime Programming Guide
     - but, multiple inheritance combines capabilities in single object
     - forwarding provides abilities in smaller objects, associated in transparent way to the message sender 
   - Implement "Array#map"
-    - The Complete Friday Q&A p 104
-    
-      @interface ArrayMapProxyNormal : NSProxy
-      {
-          NSArray *_array;
-      }
-      - (id)initWithArray:(NSArray *)array;
-      @end
+    - HOM Example: http://www.mikeash.com/pyblog/friday-qa-2009-04-24-code-generation-with-llvm-part-2-fast-objective-c-forwarding.html
+      - The Complete Friday Q&A p 104
+      - Super not-fun to implement, here's the simpler way...
+      (This is old code and doesn't work... look at this just to illustrate concept)
       
-      @implementation ArrayMapProxyNormal
-      - (id)initWithArray:(NSArray *)array
-      {
-          _array = array;
-          return self;
-      }
-      - (NSMethodSignature *)methodSignatureForSelector:(SEL)sel
-      {
-          return [[_array lastObject] methodSignatureForSelector:sel];
-      }
-      - (void)forwardInvocation:(NSInvocation *)inv
-      {
-          NSMutableArray *newArray = [NSMutableArray array];
-          for(id obj in _array)
+      @interface ArrayMapProxyNormal : NSProxy
           {
-              id retval;
-              [inv invokeWithTarget:obj];
-              [inv getReturnValue:&retval;];
-              [newArray addObject:retval];
+              NSArray *_array;
           }
-          [inv setReturnValue:&newArray;];
-      }
-      @end
+          - (id)initWithArray:(NSArray *)array;
+          @end
+          @implementation ArrayMapProxyNormal
+          - (id)initWithArray:(NSArray *)array
+          {
+              _array = array;
+              return self;
+          }
+          - (NSMethodSignature *)methodSignatureForSelector:(SEL)sel
+          {
+              return [[_array lastObject] methodSignatureForSelector:sel];
+          }
+          - (void)forwardInvocation:(NSInvocation *)inv
+          {
+              NSMutableArray *newArray = [NSMutableArray array];
+              for(id obj in _array)
+              {
+                  id retval;
+                  [inv invokeWithTarget:obj];
+                  [inv getReturnValue:&retval;];
+                  [newArray addObject:retval];
+              }
+              [inv setReturnValue:&newArray;];
+          }
+          @end
+
+          
+        OnNSArray Category:
+          - (id)mapNormal
+          {
+              return [[[ArrayMapProxyNormal alloc] initWithArray:self] autorelease];
+          }
+      
       
       
 
@@ -305,7 +322,7 @@ Method Swizzling
 - Allow you to change the behaviors of Apple frameworks
 
 - Why not use a category?
-  - Category meethod replaces original method, with no way to call original method
+  - Category method replaces original method, with no way to call original method
   - Original method you wish to replace might have been implemented by category
     - There is no way to determine which category method "wins"
 - Option 1 (more bad): method_exhangeImplementations
@@ -384,13 +401,14 @@ Downsides to Swizzling
 WHAT ABOUT...?
 - KVO refresher
   - Complete Friday Q&A V1: How Key-Value Observing Works
+  - KVO Done Right (Take 2): http://www.mikeash.com/pyblog/friday-qa-2012-03-02-key-value-observing-done-right-take-2.html
 - Blocks
   - Complete Friday Q&A V1: 
     - Practical Blocks
     - Blocks in Objective-C
 
 - Implement Clojure/Ruby collection methods with trampolining or blocks?
-  - http://cocoadev.com/index.pl?HigherOrderMessaging
+- Higher order messaging: http://cocoadev.com/index.pl?HigherOrderMessaging
 
 - Complete Friday Q&A V1: Fast Objective-C Forwarding
   - implement HOM: map?
