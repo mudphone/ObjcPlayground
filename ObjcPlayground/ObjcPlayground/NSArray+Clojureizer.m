@@ -7,7 +7,6 @@
 //
 
 #import "NSArray+Clojureizer.h"
-#import "HOM.h"
 
 @implementation NSArray (Clojureizer)
 

@@ -31,6 +31,7 @@ What We'll Cover:
     - Disecting objc_msgSend()
     - Dynamic usage
       - @dynamic, dynamic loading, fast forwarding, normal forwarding, forwarding failure
+      - Core Data, relies on this
   - A deep(er) dive into objc_msgSend
 - Sidenote: The Objective-C Runtime
   - What is it?
@@ -44,14 +45,9 @@ What We'll Cover:
 
 
 Basics / Intro:
+- Primer? http://developer.apple.com/library/ios/#referencelibrary/GettingStarted/Learning_Objective-C_A_Primer/_index.html
 - Like C++, no multiple inheritance, no operator overloading
-- Now with ARC
-- It all comes from libobjc, a collection of C functions
-  objc_msgSend --> [object message]
   
-- Objective-C runtime is open source (opensource.apple.com)
-  - got objc4-493.11 here: http://opensource.apple.com/release/mac-os-x-1073/
-
 The Objective-C Object:
 - All Objective-C objects are C structs
   typedef struct objc_object {
@@ -66,10 +62,51 @@ The Objective-C Object:
     - Class' ivars
     
 - And the Class:    
+  - The old way:
   typedef struct objc_class *Class;
   struct objc_class {
       Class isa;
       ...
+  
+  - The new way (OS X 64 & iOS)
+    http://cocoawithlove.com/2010/01/getting-subclasses-of-objective-c-class.html
+    From objc-runtime-new.h
+  typedef struct class_ro_t {
+    ...
+    const char * name;
+    const method_list_t * baseMethods;
+    const protocol_list_t * baseProtocols;
+    const ivar_list_t * ivars;
+    ...
+    const property_list_t *baseProperties;
+  } class_ro_t;
+  
+  typedef struct class_rw_t {
+      ...
+      const class_ro_t *ro;
+      
+      method_list_t **methods;
+      struct chained_property_list *properties;
+      const protocol_list_t ** protocols;
+      
+      struct class_t *firstSubclass;
+      struct class_t *nextSiblingClass;
+  } class_rw_t;
+  
+  typedef struct class_t {
+      struct class_t *isa;
+      struct class_t *superclass;
+      Cache cache;
+      IMP *vtable;
+      uintptr_t data_NEVER_USE;  // class_rw_t * plus flags
+      ...
+      bool isRootClass() const {
+          return superclass == NULL;
+      }
+      bool isRootMetaclass() const {
+          return isa == this;
+      }
+  } class_t;
     
 - A Quick Intro to C Structs
   - http://heather.cs.ucdavis.edu/~matloff/UnixAndC/CLanguage/PointersI.html
@@ -86,6 +123,8 @@ The Objective-C Object:
     - thus, categories cannot change add ivars
 - objc_object isa pointer is not const --> change class at runtime
 - Class superclass pointer also not const --> change class hierarcy at runtime
+
+
 
 Classes and Metaclasses
 - A class is like an object, you can pass it messages
@@ -104,6 +143,9 @@ Classes and Metaclasses
 
 
 
+- Now with ARC
+
+
 Review
 - In general: Messaging
   - Method: An actual piece of code associated with a class, and given a particular name
@@ -117,6 +159,8 @@ Review
   IMP - The function itself
       - just a function that accepts an object pointer and selector
   
+- It all comes from libobjc, a collection of C functions
+  objc_msgSend --> [object message]
 
 Sending Messages
 - What is a method?
@@ -238,6 +282,9 @@ A (Slightly) Deep(er) Dive into objc_msgSend()
     
     
 The Objective-C Runtime Programming Guide
+- Objective-C runtime is open source (opensource.apple.com)
+  - got objc4-493.11 here: http://opensource.apple.com/release/mac-os-x-1073/
+
 - From the introduction:
   "The Objective-C language defers as many decisions as it can from compile time and link time to runtime. Whenever possible, it does things dynamically. This means that the language requires not just a compiler, but also a runtime system to execute the compiled code. The runtime system acts as a kind of operating system for the Objective-C language; it’s what makes the language work."
 
