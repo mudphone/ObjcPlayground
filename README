@@ -48,6 +48,15 @@ Basics / Intro:
 - Primer? http://developer.apple.com/library/ios/#referencelibrary/GettingStarted/Learning_Objective-C_A_Primer/_index.html
 - Like C++, no multiple inheritance, no operator overloading
   
+  
+  
+  - A Quick Intro to C Structs
+    - http://heather.cs.ucdavis.edu/~matloff/UnixAndC/CLanguage/PointersI.html
+
+
+  
+  
+  
 The Objective-C Object:
 - All Objective-C objects are C structs
   typedef struct objc_object {
@@ -67,6 +76,25 @@ The Objective-C Object:
   struct objc_class {
       Class isa;
       ...
+  
+  
+  
+      Classes and Metaclasses
+      - A class is like an object, you can pass it messages
+        - [MyClass alloc] 
+        - Class methods are stored in the metaclass, which is where the Class isa pointer goes
+
+        - diagram: http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html
+        - Class is instance of metaclass
+          - metaclass describes methods of class, just as class describes methods of instance
+        - Meta-classes are instances of the root class' metaclass
+          - which is also an instance of the root class' metaclass (ending in a cycle)
+        - Meta-classes superclasses are the meta-classes of their corresponding class' superclass
+          - but, the root meta-class' superclass is the root class
+            - so, class objects respond to the root class' instance methods
+        - Meta-classes are hidden from you ([NSObject class] #=> [NSObject self]), and are rarely accessed
+  
+  
   
   - The new way (OS X 64 & iOS)
     http://cocoawithlove.com/2010/01/getting-subclasses-of-objective-c-class.html
@@ -107,40 +135,21 @@ The Objective-C Object:
           return isa == this;
       }
   } class_t;
+  
+  
+  - Class structure contains a metaclass pointer(?), superclass pointer, data about the class
+    - data: name, ivars, methods, properties, protocols
+
+  - Superclass pointer creates the hierarchy of classes
+  ( Categories )
+  - Methods, properties, and protocols define what the class can do
+    - stored in writable section of class definition, which can be changed at runtime
+    - this is how categories work (Ruby: Monkey-Patching)
+    - Ivars are stored in the read-only section, unmodifiable as this would impact existing instances
+      - thus, categories cannot change add ivars
+  - objc_object isa pointer is not const --> change class at runtime
+  - Class superclass pointer also not const --> change class hierarcy at runtime
     
-- A Quick Intro to C Structs
-  - http://heather.cs.ucdavis.edu/~matloff/UnixAndC/CLanguage/PointersI.html
-
-- Class structure contains a metaclass pointer(?), superclass pointer, data about the class
-  - data: name, ivars, methods, properties, protocols
-
-- Superclass pointer creates the hierarchy of classes
-( Categories )
-- Methods, properties, and protocols define what the class can do
-  - stored in writable section of class definition, which can be changed at runtime
-  - this is how categories work (Ruby: Monkey-Patching)
-  - Ivars are stored in the read-only section, unmodifiable as this would impact existing instances
-    - thus, categories cannot change add ivars
-- objc_object isa pointer is not const --> change class at runtime
-- Class superclass pointer also not const --> change class hierarcy at runtime
-
-
-
-Classes and Metaclasses
-- A class is like an object, you can pass it messages
-  - [MyClass alloc] 
-  - Class methods are stored in the metaclass, which is where the Class isa pointer goes
-
-  - diagram: http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html
-  - Class is instance of metaclass
-    - metaclass describes methods of class, just as class describes methods of instance
-  - Meta-classes are instances of the root class' metaclass
-    - which is also an instance of the root class' metaclass (ending in a cycle)
-  - Meta-classes superclasses are the meta-classes of their corresponding class' superclass
-    - but, the root meta-class' superclass is the root class
-      - so, class objects respond to the root class' instance methods
-  - Meta-classes are hidden from you ([NSObject class] #=> [NSObject self]), and are rarely accessed
-
 
 
 - Now with ARC
@@ -184,10 +193,16 @@ Sending Messages
     - a string containing argument and return types (created by @encode)
     - an IMP, or function pointer:
       typedef id 			(*IMP)(id, SEL, ...);
-  
+
+
+
+
+
+<<<== MESSAGING IN DETAIL (IN KEYNOTE, STARTS HERE)
+
 - Messaging:
   objc_msgSend does the following
-    - look up class of given object, be dereferencing itand grabbing ISA member
+    - look up class of given object, be dereferencing it and grabbing ISA member
     - look at method list of class, search for selector
     - if not found, move to superclass and do the same
     - when found, jump to IMP
